@@ -61,16 +61,14 @@ module.exports = function(RED) {
 			});
 		}
 		else if (node.position === "replace" || payload.position === "replace") {
-			node.log("Replace URI: " + _songuri);
+			node.log("Flushing queue");
 			client.flush(function(err, result) {
-				if (err) {
-					helper.handleSonosApiRequest(node, err, result, msg, null, null);
-					return;
-				}
+				helper.handleSonosApiRequest(node, err, result, msg, null, null);
+			});
 
-				client.queueNext(_songuri, function (err, result) {
-					helper.handleSonosApiRequest(node, err, result, msg, null, null);
-				});
+			node.log("Queueing URI next: " + _songuri);
+			client.queueNext(_songuri, function (err, result) {
+				helper.handleSonosApiRequest(node, err, result, msg, null, null);
 			});
 		}
 		else {

@@ -5,7 +5,7 @@ module.exports = function(RED) {
 	'use strict';
 
 	function Node(n) {
-	  
+
 		RED.nodes.createNode(this, n);
 		var node = this;
 		var configNode = RED.nodes.getNode(n.confignode);
@@ -24,7 +24,7 @@ module.exports = function(RED) {
 		if (node.volume === "empty")
 			node.volume = "";
 		node.volume_value = n.volume_value;
-		
+
 		//handle input message
 		node.on('input', function (msg) {
 			helper.preprocessInputMsg(node, configNode, msg, function(device) {
@@ -63,7 +63,7 @@ module.exports = function(RED) {
 
 	//------------------------------------------------------------------------------------
 
-	// (TBD: discuss if automatic play with track and volume 
+	// (TBD: discuss if automatic play with track and volume
 	// settings, maybe depending on a node setting "enforce automatic play")
 	function setMode(node, configNode, msg, client, payload)
 	{
@@ -73,7 +73,7 @@ module.exports = function(RED) {
 			_mode = payload.mode;
 		}
 
-		switch (_mode) 
+		switch (_mode)
 		{
 			case "pause":
 				client.pause(function(err, result) {
@@ -84,6 +84,11 @@ module.exports = function(RED) {
 				client.stop(function(err, result) {
 					helper.handleSonosApiRequest(node, err, result, msg, "stopped", null);
 				});
+				break;
+			case "flush":
+				client.flush(function(err, result) {
+					helper.handleSonosApiRequest(node, err, result, msg, "flushed", null);
+				}
 				break;
 			default:
 				client.play(function(err, result) {
@@ -101,42 +106,42 @@ module.exports = function(RED) {
 			if (payload.volume === "vol_up") {
 			 _volfkt = "vol_up";
 			 _volume = payload.volstep;
-			 
+
 			} else if (payload.volume === "vol_down") {
 			 _volfkt = "vol_down";
 			 _volume = payload.volstep;
-			 	
+
 			} else if (payload.volume === "mute") {
 			 _volfkt = "mute";
-			 	
+
 			} else if (payload.volume === "unmute") {
 			 _volfkt = "unmute";
-			 	
+
 			} else {
 			 _volfkt = "vol_set";
 			 _volume = payload.volume;
 			}
-		
+
 		} else if (node.volume === "volume") {
 			_volfkt = "vol_set";
 			_volume = node.volume_value;
 		} else if (node.volume === "vol_up") {
 			_volfkt = "vol_up";
 			_volume = node.volume_value;
-			 
+
 		} else if (node.volume === "vol_down") {
 			_volfkt = "vol_down";
 			_volume = node.volume_value;
-			
+
 		} else if (node.volume === "mute") {
 			_volfkt = "mute";
-			
+
 		} else if (node.volume === "unmute") {
 			_volfkt = "unmute";
-			
+
 		}
-		
-		switch (_volfkt) 
+
+		switch (_volfkt)
 		{
 			case "vol_set":
 				var volume_val = parseInt(_volume);
@@ -218,6 +223,6 @@ module.exports = function(RED) {
 			return;
 		}
 	}
-	
+
 	RED.nodes.registerType('better-sonos-control', Node);
 };
